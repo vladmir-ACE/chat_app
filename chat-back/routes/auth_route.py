@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import create_access_token
-from app import db
+from app import db,photos
 from models.users import User
 
 auth_bp = Blueprint('auth', __name__)
@@ -35,7 +35,7 @@ def login():
     print(user.check_pass(password))
     
     if user and user.check_pass(password):
-        access_token = create_access_token(identity={'username': user.username, 'email': user.email})
-        return jsonify(access_token=access_token, user={'username': user.username, 'email': user.email}), 200
+        access_token = create_access_token(identity={'username': user.username, 'email': user.email,'id':user.id})
+        return jsonify(access_token=access_token, user={'username': user.username,'email': user.email,'id':user.id,'img': photos.url(user.img) if user.img else None}), 200
     else:
         return jsonify({"msg": "Bad username or password"}), 401

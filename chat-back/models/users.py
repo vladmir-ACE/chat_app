@@ -10,6 +10,7 @@ class User(db.Model):
     phone_number = db.Column(db.String(100), unique=True, nullable=False)
     email = db.Column(db.String(256), unique=True, nullable=False)
     password_hash = db.Column(db.String(256), nullable=False)
+    img = db.Column(db.String(256), nullable=True)
     
     #list od reciev and send messages
     sent_messages = db.relationship('Message', foreign_keys='Message.sender_id', backref='sender', lazy=True)
