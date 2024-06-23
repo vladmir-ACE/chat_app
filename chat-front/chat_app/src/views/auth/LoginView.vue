@@ -1,4 +1,49 @@
-<script setup lang="ts">
+<script  lang="ts">
+import { api } from '@/api_env/api';
+import { User } from '@/model/user';
+import { AuthService } from '@/services/auth_service';
+import { ToastService } from '@/services/toast_service';
+import axios from 'axios';
+
+
+ export default{
+    data(){
+        return{
+            user: new User(),
+            notif: new ToastService(),
+            auth_service:new AuthService(),
+
+        }
+    },
+    methods:{
+        login(){
+            console.log(this.user);
+            axios.post(api.url+"auth/login",this.user).then(response=>{
+                 if(response.data){
+                    console.log(response.data)
+                    this.auth_service.setToken(response.data.access_token);
+                    this.auth_service.setUserInfo(response.data.user);
+                    // redirection to main 
+                    this.$router.push('/main');
+
+                 }
+                   
+                   
+                    
+               }).catch((error)=>{
+                this.notif.toast('error','une erreure est survenue');
+                console.log(error)}
+            )
+        },
+
+        
+
+    },mounted() {
+        
+        
+        
+    },}
+ 
 
 </script>
 
@@ -32,19 +77,24 @@
                                                 <h3>Welcome Back !</h3>
                                                 <p class="text-muted">Sign in to continue to Doot.</p>
                                             </div>
-                                            <form action="https://themesbrand.com/doot/layouts/index.html">
+                                            <form @submit.prevent="login">
                                                 <div class="mb-3">
-                                                    <label for="username" class="form-label">Username</label>
-                                                    <input type="text" class="form-control" id="username" placeholder="Enter username">
+                                                    <label for="tel" class="form-label">Email/Username</label>
+                                                    <input type="text" class="form-control" id="tel" placeholder="email or usernmae"  v-model="user.username_or_email" required>
+                                                    <div class="invalid-feedback">
+                                                        Please Enter email or usename
+                                                    </div>  
                                                 </div>
+                                                
+                                                
                                                 
                                                 <div class="mb-3">
                                                     <div class="float-end">
-                                                        <a href="auth-recoverpw.html" class="text-muted">Forgot password?</a>
+                                                        <a role="button" class="text-muted">Forgot password?</a>
                                                     </div>
                                                     <label for="userpassword" class="form-label">Password</label>
                                                     <div class="position-relative auth-pass-inputgroup mb-3">
-                                                        <input type="password" class="form-control pe-5" placeholder="Enter Password" id="password-input">
+                                                        <input type="password" class="form-control pe-5" placeholder="Enter Password" v-model="user.password" id="password-input">
                                                         <button class="btn btn-link position-absolute end-0 top-0 text-decoration-none text-muted" type="button" id="password-addon"><i class="ri-eye-fill align-middle"></i></button>
                                                     </div>
                                                 </div>
@@ -57,8 +107,8 @@
                                                 </div>
             
                                                 <div class="text-center mt-4">
-                                                    <a class="btn btn-primary w-100"> <router-link to="/main">Log In</router-link></a>
-                                                    <button class="btn btn-primary w-100" type="submit">Log In</button>
+                                                    
+                                                    <button class="btn btn-primary w-100" type="submit">LogIn</button>
                                                 </div>
                                                 <div class="mt-4 text-center">
                                                     <div class="signin-other-title">

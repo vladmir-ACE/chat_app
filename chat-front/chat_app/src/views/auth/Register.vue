@@ -1,4 +1,42 @@
-<script setup lang="ts">
+<script  lang="ts">
+
+import { api } from '@/api_env/api';
+import { User } from '@/model/user';
+import { ToastService } from '@/services/toast_service';
+import axios from 'axios';
+
+
+
+ export default{
+    data(){
+        return{
+            user: new User(),
+            notif: new ToastService(),
+
+        }
+    },
+    methods:{
+        register(){
+            console.log(this.user);
+            axios.post(api.url+"auth/register",this.user).then(response=>{
+                    console.log("response",response.data);
+                    this.notif.toast('success','votre compte est créer ; vous pouvez vous connecté');
+                    
+               }).catch((error)=>{
+                this.notif.toast('error','une erreure est survenue');
+                console.log(error)}
+            
+            )
+        },
+
+        
+
+    },mounted() {
+        
+        
+        
+    },}
+ 
 
 </script>
 
@@ -30,25 +68,32 @@
                                                 <h3>Register Account</h3>
                                                 <p class="text-muted">Get your free Doot account now.</p>
                                             </div>
-                                            <form class="needs-validation" novalidate action="https://themesbrand.com/doot/layouts/index.html">
+                                            <form class="needs-validation" novalidate  @submit.prevent="register">
                                                 <div class="mb-3">
                                                     <label for="useremail" class="form-label">Email</label>
-                                                    <input type="email" class="form-control" id="useremail" placeholder="Enter email" required>  
+                                                    <input type="email" class="form-control" id="useremail" placeholder="Enter email"  v-model="user.email"  required>  
                                                     <div class="invalid-feedback">
                                                         Please Enter Email
                                                     </div>      
                                                 </div>
                                                 <div class="mb-3">
                                                     <label for="username" class="form-label">Username</label>
-                                                    <input type="text" class="form-control" id="username" placeholder="Enter username" required>
+                                                    <input type="text" class="form-control" id="username" placeholder="Enter username"  v-model="user.username" required>
                                                     <div class="invalid-feedback">
                                                         Please Enter Username
+                                                    </div>  
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="tel" class="form-label">Telephone</label>
+                                                    <input type="text" class="form-control" id="tel" placeholder="(eg:+228XXXX)"  v-model="user.phone_number" required>
+                                                    <div class="invalid-feedback">
+                                                        Please Enter your phone number
                                                     </div>  
                                                 </div>
                                                 
                                                 <div class="mb-3">
                                                     <label for="userpassword" class="form-label">Password</label>
-                                                    <input type="password" class="form-control" id="userpassword" placeholder="Enter password" required>
+                                                    <input type="password" class="form-control" id="userpassword" placeholder="Enter password"  v-model="user.password" required>
                                                     <div class="invalid-feedback">
                                                         Please Enter Password
                                                     </div>       
@@ -81,7 +126,7 @@
                                             </form><!-- end form -->
             
                                             <div class="mt-5 text-center text-muted">
-                                                <p>Already have an account ? <a href="auth-login.html" class="fw-medium text-decoration-underline">Login</a></p>
+                                                <p>Already have an account ? <a role="button" class="fw-medium text-decoration-underline"><router-link to="/login">Login</router-link></a></p>
                                             </div>
                                         </div>
                                     </div><!-- end col -->
