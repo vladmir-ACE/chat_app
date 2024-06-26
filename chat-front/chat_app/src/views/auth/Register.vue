@@ -47,8 +47,8 @@ import axios from 'axios';
                     <div class="col-xl-3 col-lg-4">
                         <div class="p-4 pb-0 p-lg-5 pb-lg-0 auth-logo-section">
                             <div class="text-white-50">
-                                <h3><a href="index.html" class="text-white"><i class="bx bxs-message-alt-detail align-middle text-white h3 mb-1 me-2"></i> Doot</a></h3>
-                                <p class="font-size-16">Responsive Bootstrap 5 Chat App</p>
+                                <h3><a href="index.html" class="text-white"><i class="bx bxs-message-alt-detail align-middle text-white h3 mb-1 me-2"></i> MailChatter</a></h3>
+                                <p class="font-size-16">By Kingvlad & God Mc</p>
                             </div>
                             <div class="mt-auto">
                                 <img src="@/assets/images/auth-img.png" alt="" class="auth-img">
@@ -66,7 +66,7 @@ import axios from 'axios';
                                             
                                             <div class="text-center mb-5">
                                                 <h3>Register Account</h3>
-                                                <p class="text-muted">Get your free Doot account now.</p>
+                                                <p class="text-muted">Get your free MailChatter account now.</p>
                                             </div>
                                             <form class="needs-validation" novalidate  @submit.prevent="register">
                                                 <div class="mb-3">

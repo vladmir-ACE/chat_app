@@ -104,7 +104,18 @@ export default {
                 );
 
         },
-        // send Message with socket io
+        // delete message 
+        deleteMessage(id:number){
+        apiClient.delete(api.url+"chat/delete_messages/"+id).then(
+            (res)=>{
+                this.toast.toast("success","Message supprimé");
+                this.load();
+            },
+            (error)=>{
+                this.toast.toast("error","erreur pour la suppression du message");
+            }
+        );
+      }
        
 
     },
@@ -153,7 +164,7 @@ export default {
                                         <div class="d-flex align-items-center">
                                             <div
                                                 class="flex-shrink-0 chat-user-img online user-own-img align-self-center me-3 ms-0">
-                                                <img src="@/assets/images/users/avatar-2.jpg"
+                                                <img :src="user.img!=null?user.img:'/src/assets/images/users/user-dummy-img.jpg'"
                                                     class="rounded-circle avatar-sm" alt="">
                                                 <span class="user-status"></span>
                                             </div>
@@ -233,22 +244,7 @@ export default {
                                 </ul>
                             </div>
                         </div>
-                        <div class="alert alert-warning alert-dismissible topbar-bookmark fade show p-1 px-3 px-lg-4 pe-lg-5 pe-5"
-                            role="alert">
-                            <div class="d-flex align-items-start bookmark-tabs">
-                                <div class="tab-list-link">
-                                    <a href="#" class="tab-links" data-bs-toggle="modal"
-                                        data-bs-target=".pinnedtabModal"><i
-                                            class="ri-pushpin-fill align-middle me-1"></i> 10 Pinned</a>
-                                </div>
-                                <div>
-                                    <a href="#" class="tab-links border-0 px-3" data-bs-toggle="tooltip"
-                                        data-bs-trigger="hover" data-bs-placement="bottom" title="Add Bookmark"><i
-                                            class="ri-add-fill align-middle"></i></a>
-                                </div>
-                            </div>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
+                        
 
                     </div>
                     <!-- end chat user head -->
@@ -264,12 +260,12 @@ export default {
                                 <div class="ctext-wrap-content">
                                     <p class="mb-0 ctext-content">{{ message.content }}</p>
                                 </div>
-                                <div class="dropdown align-self-start message-box-drop">
+                                <div class="dropdown align-self-start message-box-drop" v-if="message.receiver_id == user.id">
                                     <a class="dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                     <i class="ri-more-2-fill"></i>
                                     </a>
-                                    <div class="dropdown-menu">
-                                    <a class="dropdown-item d-flex align-items-center justify-content-between delete-item" href="#">
+                                    <div class="dropdown-menu"  >
+                                    <a class="dropdown-item d-flex align-items-center justify-content-between delete-item" @click="deleteMessage(message.id)">
                                         Delete <i class="bx bx-trash text-muted ms-2"></i>
                                     </a>
                                     </div>
@@ -287,10 +283,7 @@ export default {
                         </ul>
                 </div>
 
-                    <div class="alert alert-warning alert-dismissible copyclipboard-alert px-4 fade show "
-                        id="copyClipBoard" role="alert">
-                        message copied
-                    </div>
+                    
 
 
                     <!-- end chat conversation end -->
@@ -603,7 +596,7 @@ export default {
             <div v-if="user.email === ''"
                 class=" w-100 d-flex flex-column justify-content-center align-items-center text-center italic-text custom-font"
                 style="margin-top: 20%; font-style: italic;">
-                <h1>Bienvenue sur <span class="text text-success"> simpleChat</span></h1>
+                <h1>Bienvenue sur <span class="text text-success"> MailChatter</span></h1>
                 <h1>Clickez sur un contact pour discuter 😎</h1>
             </div>
 
@@ -614,6 +607,127 @@ export default {
         <!-- end user chat content -->
     </div>
     <!-- End User chat -->
+
+
+    <!-- call Modal -->
+    <!-- audiocall Modal -->
+<div class="modal fade audiocallModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow-lg border-0">
+            <div class="modal-body p-0">
+                <div class="text-center p-4 pb-0">
+                    <div class="avatar-xl mx-auto mb-4">
+                        <img :src="user.img!=null?user.img:'/src/assets/images/users/user-dummy-img.jpg'"alt="" class="img-thumbnail rounded-circle">
+                    </div>
+
+                    <div class="d-flex justify-content-center align-items-center mt-4">
+                        <div class="avatar-md h-auto">
+                            <button type="button" class="btn btn-light avatar-sm rounded-circle">
+                                <span class="avatar-title bg-transparent text-muted font-size-20">
+                                    <i class="bx bx-microphone-off"></i>
+                                </span>
+                            </button>
+                            <h5 class="font-size-11 text-uppercase text-muted mt-2">Mute</h5>
+                        </div>
+                        <div class="avatar-md h-auto">
+                            <button type="button" class="btn btn-light avatar-sm rounded-circle">
+                                <span class="avatar-title bg-transparent text-muted font-size-20">
+                                    <i class="bx bx-volume-full"></i>
+                                </span>
+                            </button>
+                            <h5 class="font-size-11 text-uppercase text-muted mt-2">Speaker</h5>
+                        </div>
+                        <div class="avatar-md h-auto">
+                            <button type="button" class="btn btn-light avatar-sm rounded-circle">
+                                <span class="avatar-title bg-transparent text-muted font-size-20">
+                                    <i class="bx bx-user-plus"></i>
+                                </span>
+                            </button>
+                            <h5 class="font-size-11 text-uppercase text-muted mt-2">Add New</h5>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <button type="button" class="btn btn-danger avatar-md call-close-btn rounded-circle" data-bs-dismiss="modal">
+                            <span class="avatar-title bg-transparent font-size-24">
+                                <i class="mdi mdi-phone-hangup"></i>
+                            </span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="p-4 bg-primary-subtle mt-n4">
+                    <div class="mt-4 text-center">
+                        <h5 class="font-size-18 mb-0 text-truncate">{{ user.username }}</h5>
+                    </div>
+                </div>
+            </div>                        
+        </div>
+    </div>
+</div>
+<!-- audiocall Modal -->
+
+<!-- videocall Modal -->
+<div class="modal fade videocallModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow-lg border-0">
+            <div class="modal-body p-0">
+                <img :src="user.img!=null?user.img:'/src/assets/images/users/user-dummy-img.jpg'" alt="" class="videocallModal-bg">
+                <div class="position-absolute start-0 end-0 bottom-0">
+                    <div class="text-center">
+                        <div class="d-flex justify-content-center align-items-center text-center">
+                            <div class="avatar-md h-auto">
+                                <button type="button" class="btn btn-light avatar-sm rounded-circle">
+                                    <span class="avatar-title bg-transparent text-muted font-size-20">
+                                        <i class="bx bx-microphone-off"></i>
+                                    </span>
+                                </button>
+                            </div>
+                            <div class="avatar-md h-auto">
+                                <button type="button" class="btn btn-light avatar-sm rounded-circle">
+                                    <span class="avatar-title bg-transparent text-muted font-size-20">
+                                        <i class="bx bx-volume-full"></i>
+                                    </span>
+                                </button>
+                            </div>
+                            <div class="avatar-md h-auto">
+                                <button type="button" class="btn btn-light avatar-sm rounded-circle">
+                                    <span class="avatar-title bg-transparent text-muted font-size-20">
+                                        <i class="bx bx-video-off"></i>
+                                    </span>
+                                </button>
+                            </div>
+                            <div class="avatar-md h-auto">
+                                <button type="button" class="btn btn-light avatar-sm rounded-circle">
+                                    <span class="avatar-title bg-transparent text-muted font-size-20">
+                                        <i class="bx bx-refresh"></i>
+                                    </span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <button type="button" class="btn btn-danger avatar-md call-close-btn rounded-circle" data-bs-dismiss="modal">
+                                <span class="avatar-title bg-transparent font-size-24">
+                                    <i class="mdi mdi-phone-hangup"></i>
+                                </span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="p-4 bg-primary mt-n4">
+                        <div class="text-white mt-4 text-center">
+                            <h5 class="font-size-18 text-truncate mb-0 text-white">{{ user.username }}</h5>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end modal -->
+    <!-- End call Modal -->
 
 </template>
 

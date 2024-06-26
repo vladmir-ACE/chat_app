@@ -15,6 +15,9 @@ class User(db.Model):
     #list od reciev and send messages
     sent_messages = db.relationship('Message', foreign_keys='Message.sender_id', backref='sender', lazy=True)
     received_messages = db.relationship('Message', foreign_keys='Message.receiver_id', backref='receiver', lazy=True)
+    
+    #list of Postes 
+    users_postes = db.relationship('Poste', foreign_keys='Poste.sender_id', backref='sender', lazy=True)
 
 
     contacts = db.relationship('User', secondary='contacte', 

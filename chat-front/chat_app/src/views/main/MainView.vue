@@ -1,6 +1,22 @@
 
 <script setup lang="ts">
-import { RouterLink, RouterView } from 'vue-router'
+import { RouterLink, RouterView,useRouter } from 'vue-router'
+
+
+
+function getSanitizedImageSrc(imageUrl: string ) {
+        return imageUrl.replace(/^["'](.+(?=["']$))["']$/, '$1'); // Remove leading and trailing quotes
+      
+    };
+
+const ImgSrc=getSanitizedImageSrc(localStorage.getItem('img')!);
+const router=useRouter();
+
+function logout(){
+    router.push('/login');
+
+}
+
 
 </script>
 
@@ -46,16 +62,12 @@ import { RouterLink, RouterView } from 'vue-router'
                     <i class='bx bxs-user-detail'></i>
                 </a>
             </li>
-            <li class="nav-item" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-trigger="hover" data-bs-container=".sidemenu-navigation" title="Calls">
+            <li class="nav-item" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-trigger="hover" data-bs-container=".sidemenu-navigation" title="Postes">
                 <a class="nav-link" id="pills-calls-tab" data-bs-toggle="pill" href="#pills-calls" role="tab">
-                    <i class='bx bx-phone-call'></i>
+                    <i class='bx bx-circle'></i>
                 </a>
             </li>
-            <li class="nav-item" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-trigger="hover" data-bs-container=".sidemenu-navigation" title="Bookmark">
-                <a class="nav-link" id="pills-bookmark-tab" data-bs-toggle="pill" href="#pills-bookmark" role="tab">
-                    <i class='bx bx-bookmarks'></i>
-                </a>
-            </li>
+            
             <li class="nav-item d-none d-lg-block" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-container=".sidemenu-navigation" data-bs-trigger="hover" title="Settings">
                 <a class="nav-link" id="pills-setting-tab" data-bs-toggle="pill" href="#pills-setting" role="tab">
                     <i class='bx bx-cog'></i>
@@ -68,14 +80,14 @@ import { RouterLink, RouterView } from 'vue-router'
             </li>
             <li class="nav-item dropdown profile-user-dropdown">
                 <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <img src="@/assets/images/users/avatar-1.jpg" alt="" class="profile-user rounded-circle">
+                    <img :src=ImgSrc alt="" class="profile-user rounded-circle">
                 </a>
                 <div class="dropdown-menu">
                     <a class="dropdown-item d-flex align-items-center justify-content-between" id="pills-user-tab" data-bs-toggle="pill" href="#pills-user" role="tab">Profile <i class="bx bx-user-circle text-muted ms-1"></i></a>
                     <a class="dropdown-item d-flex align-items-center justify-content-between" id="pills-setting-tab" data-bs-toggle="pill" href="#pills-setting" role="tab">Setting <i class="bx bx-cog text-muted ms-1"></i></a>
-                    <a class="dropdown-item d-flex align-items-center justify-content-between" href="auth-changepassword.html">Change Password <i class="bx bx-lock-open text-muted ms-1"></i></a>
+
                     <div class="dropdown-divider"></div>
-                    <a class="dropdown-item d-flex align-items-center justify-content-between" href="auth-logout.html">Log out <i class="bx bx-log-out-circle text-muted ms-1"></i></a>
+                    <a role="button" class="dropdown-item d-flex align-items-center justify-content-between" @click="logout()">Log out <i class="bx bx-log-out-circle text-muted ms-1"></i></a>
                 </div>
             </li>
         </ul>
@@ -120,123 +132,7 @@ import { RouterLink, RouterView } from 'vue-router'
 </div>
 <!-- End Add contact Modal -->
 
-<!-- audiocall Modal -->
-<div class="modal fade audiocallModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content shadow-lg border-0">
-            <div class="modal-body p-0">
-                <div class="text-center p-4 pb-0">
-                    <div class="avatar-xl mx-auto mb-4">
-                        <img src="@/assets/images/users/avatar-2.jpg" alt="" class="img-thumbnail rounded-circle">
-                    </div>
 
-                    <div class="d-flex justify-content-center align-items-center mt-4">
-                        <div class="avatar-md h-auto">
-                            <button type="button" class="btn btn-light avatar-sm rounded-circle">
-                                <span class="avatar-title bg-transparent text-muted font-size-20">
-                                    <i class="bx bx-microphone-off"></i>
-                                </span>
-                            </button>
-                            <h5 class="font-size-11 text-uppercase text-muted mt-2">Mute</h5>
-                        </div>
-                        <div class="avatar-md h-auto">
-                            <button type="button" class="btn btn-light avatar-sm rounded-circle">
-                                <span class="avatar-title bg-transparent text-muted font-size-20">
-                                    <i class="bx bx-volume-full"></i>
-                                </span>
-                            </button>
-                            <h5 class="font-size-11 text-uppercase text-muted mt-2">Speaker</h5>
-                        </div>
-                        <div class="avatar-md h-auto">
-                            <button type="button" class="btn btn-light avatar-sm rounded-circle">
-                                <span class="avatar-title bg-transparent text-muted font-size-20">
-                                    <i class="bx bx-user-plus"></i>
-                                </span>
-                            </button>
-                            <h5 class="font-size-11 text-uppercase text-muted mt-2">Add New</h5>
-                        </div>
-                    </div>
-
-                    <div class="mt-4">
-                        <button type="button" class="btn btn-danger avatar-md call-close-btn rounded-circle" data-bs-dismiss="modal">
-                            <span class="avatar-title bg-transparent font-size-24">
-                                <i class="mdi mdi-phone-hangup"></i>
-                            </span>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="p-4 bg-primary-subtle mt-n4">
-                    <div class="mt-4 text-center">
-                        <h5 class="font-size-18 mb-0 text-truncate">Bella Cote</h5>
-                    </div>
-                </div>
-            </div>                        
-        </div>
-    </div>
-</div>
-<!-- audiocall Modal -->
-
-<!-- videocall Modal -->
-<div class="modal fade videocallModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content shadow-lg border-0">
-            <div class="modal-body p-0">
-                <img src="@/assets/images/users/avatar-2.jpg" alt="" class="videocallModal-bg">
-                <div class="position-absolute start-0 end-0 bottom-0">
-                    <div class="text-center">
-                        <div class="d-flex justify-content-center align-items-center text-center">
-                            <div class="avatar-md h-auto">
-                                <button type="button" class="btn btn-light avatar-sm rounded-circle">
-                                    <span class="avatar-title bg-transparent text-muted font-size-20">
-                                        <i class="bx bx-microphone-off"></i>
-                                    </span>
-                                </button>
-                            </div>
-                            <div class="avatar-md h-auto">
-                                <button type="button" class="btn btn-light avatar-sm rounded-circle">
-                                    <span class="avatar-title bg-transparent text-muted font-size-20">
-                                        <i class="bx bx-volume-full"></i>
-                                    </span>
-                                </button>
-                            </div>
-                            <div class="avatar-md h-auto">
-                                <button type="button" class="btn btn-light avatar-sm rounded-circle">
-                                    <span class="avatar-title bg-transparent text-muted font-size-20">
-                                        <i class="bx bx-video-off"></i>
-                                    </span>
-                                </button>
-                            </div>
-                            <div class="avatar-md h-auto">
-                                <button type="button" class="btn btn-light avatar-sm rounded-circle">
-                                    <span class="avatar-title bg-transparent text-muted font-size-20">
-                                        <i class="bx bx-refresh"></i>
-                                    </span>
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="mt-4">
-                            <button type="button" class="btn btn-danger avatar-md call-close-btn rounded-circle" data-bs-dismiss="modal">
-                                <span class="avatar-title bg-transparent font-size-24">
-                                    <i class="mdi mdi-phone-hangup"></i>
-                                </span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="p-4 bg-primary mt-n4">
-                        <div class="text-white mt-4 text-center">
-                            <h5 class="font-size-18 text-truncate mb-0 text-white">Bella Cote</h5>
-                        </div>
-                    </div>
-                </div>
-                
-            </div>
-        </div>
-    </div>
-</div>
-<!-- end modal -->
 
 <!-- Start Add pinned tab Modal -->
 <div class="modal fade pinnedtabModal" tabindex="-1" role="dialog" aria-labelledby="pinnedtabModalLabel" aria-hidden="true">

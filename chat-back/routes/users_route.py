@@ -41,7 +41,8 @@ def search():
                 "id": user.id,
                 "username": user.username,
                 "email": user.email,
-                "phone_number":user.phone_number
+                "phone_number":user.phone_number,
+                'img':photos.url(user.img)  if user.img else None
             }
         }),200
     else:
@@ -63,7 +64,25 @@ def save_contact():
     db.session.commit()
     
     return jsonify({"msg": "contacte successfully add "}), 201
+
+# delete  a user in contact table 
+@users_bp.route('/contacte/delete',methods=['DELETE'])
+@jwt_required()
+def del_contact():
+    data=request.json
+    current_user_identity = get_jwt_identity()
+    user_id=current_user_identity['id']
+    contact_id=data.get('contact_id')
     
+    new_contacte= Contacte(user_id=user_id,contact_id=contact_id)
+    db.session.add(new_contacte)
+    db.session.commit()
+    
+    return jsonify({"msg": "contacte successfully delete add "}), 201
+    
+    
+
+
     
 @users_bp.route('/contactes', methods=['GET'])
 @jwt_required()
@@ -78,7 +97,8 @@ def get_contacts():
         'id': contact.id,
         'username': contact.username,
         'email': contact.email,
-        'phone_number': contact.phone_number
+        'phone_number': contact.phone_number,
+        'img':photos.url(contact.img)  if contact.img else None
          } for contact in contacts]
         }), 200
     
@@ -101,8 +121,9 @@ def upload_image():
         user = User.query.filter_by(username=current_user_identity['username']).first_or_404()
         user.img = filename
         db.session.commit()
-
-        return jsonify({"msg": "Image successfully uploaded"}), 200
+        return jsonify({"data": {
+             "img":photos.url(filename)
+            }}), 200
 
     return jsonify({"msg": "Image upload failed"}), 400
 
@@ -128,6 +149,7 @@ def get_unknown_contacts():
             'id': sender.id,
             'username': sender.username,
             'email': sender.email,
-            'phone_number': sender.phone_number
+            'phone_number': sender.phone_number,
+            'img':sender.img if sender.img else None
         } for sender in unknown_senders]}
     ), 200

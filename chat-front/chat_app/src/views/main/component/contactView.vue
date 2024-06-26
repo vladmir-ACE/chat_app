@@ -6,15 +6,30 @@ import { ToastService } from '@/services/toast_service';
 
 import chatBoxView from '@/views/main/component/chatBoxView.vue';
 
+import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+import CKEditor from "@ckeditor/ckeditor5-vue"
+
+import { Base64UploadAdapter } from '@ckeditor/ckeditor5-upload';
+
+import { QuillEditor } from '@vueup/vue-quill'
+import '@vueup/vue-quill/dist/vue-quill.snow.css';
+import type { Poste } from '@/model/poste';
+
+
+
 
 export default{
    components:{
-    chatBoxView
+    chatBoxView,
+    ckeditor: CKEditor.component,
+    QuillEditor
    },
     data(){
         return{
-             contactList :[] as User[],
-             UnknowContactList :[] as User[],
+            contactList :[] as User[],
+            UnknowContactList :[] as User[],
+            postList :[] as Poste[],
+            ownPostList :[] as Poste[],
             toast:new ToastService(),
             chatUser:new User(),
             findUser:new User(),
@@ -26,11 +41,19 @@ export default{
                 
             },
             // default profile img
-            imageSrc: localStorage.getItem('img')?this.getSanitizedImageSrc(localStorage.getItem('img')):"@/assets/images/users/user-dummy-img.jpg",
+            imageSrc: localStorage.getItem('img')?this.getSanitizedImageSrc(localStorage.getItem('img')):"/src/assets/images/users/user-dummy-img.jpg",
            
             search:{
                 search:""
-            }
+            },
+            defaultImg:'/src/assets/images/users/user-dummy-img.jpg',
+
+            // text editor editor data :
+       
+            editor: ClassicEditor,
+             editorData: "",
+             showContentdata:"<h1>HELLO</h1>",
+             showModalTitle:"",
         }
     },
     methods:{
@@ -133,6 +156,9 @@ export default{
         }).then(
             (res)=>{
                 if(res.data){
+                    const newImgUrl=res.data.img;
+                    localStorage.setItem('img',newImgUrl);
+                    console.log(newImgUrl+ "uplaod console");
                     this.toast.toast("success","profile update");
                 };
                 console.log(res)
@@ -144,15 +170,103 @@ export default{
         )
 
 
-     }
+     },
+
+     // text editor methodes 
+
+     
+      sendPostContent(){
+        console.log(this.editorData);
+        apiClient.post(api.url+"chat/add_post",{content:this.editorData}).then(
+            (res)=>{
+                console.log(res);
+                this.toast.toast("success","Post Bien ajouté");
+                this.getContact();
+                
+            },
+            (error)=>{
+                console.log(error);
+                this.toast.toast("error","erreur lors de l'ajout");
+            }
+        )
+
+      },
+
+      getPostContact(){
+        apiClient.get(api.url+"chat/contacts_posts").then(
+        (res)=>{
+            console.log(res.data);
+            this.postList=res.data.data;
+
+            console.log(this.UnknowContactList);
+        },
+        (error)=>{
+            this.toast.toast("error","erreur pour la recuperation des  postes");
+            console.log(error);
+        }
+    );
+
+      },
+
+      getOwnPost(){
+        apiClient.get(api.url+"chat/own_post").then(
+        (res)=>{
+            console.log(res.data);
+            this.ownPostList=res.data.data;
+
+            console.log(this.ownPostList);
+        },
+        (error)=>{
+            this.toast.toast("error","erreur pour la recuperation des  postes");
+            console.log(error);
+        }
+    );
+
+      },
+      
+       showPost(post:Poste){
+        this.showContentdata=post.content;
+        this.showModalTitle=post.contact.username;
+        console.log(this.showContentdata);
+
+      },
+
+      deletePost(id:number){
+        apiClient.delete(api.url+"chat/delete_post/"+id).then(
+            (res)=>{
+                this.toast.toast("success","Poste supprime");
+                this.getOwnPost();
+            },
+            (error)=>{
+                this.toast.toast("error","erreur pour la suppression du post");
+            }
+        );
+      }
 
     },
     mounted(){
       this.getContact();
       this.getUnknowContact();
-    }
-    
+      this.getPostContact();
+      this.getOwnPost();
+
+
+    //   const editorElement = document.querySelector('#editor');
+    // if (editorElement) {
+    //   ClassicEditor.create(editorElement as HTMLElement, {
+    //     plugins: [Base64UploadAdapter, /* ... */],
+    //     toolbar: [/* ... */]
+    //   }).then(editor => {
+    //     console.log("Editor is ready", editor);
+    //   }).catch(error => {
+    //     console.error("There was a problem initializing the editor", error);
+    //   });
+    // }
+  }
 }
+
+      
+
 
 // variable
 
@@ -271,7 +385,7 @@ export default{
                     role="button"
                     @click="chatUser=user"
                     >
-                    <img src="@/assets/images/users/user-dummy-img.jpg" alt="Profile" class="rounded-circle me-3" width="40" height="40">
+                    <img :src="user.img!=null?user.img:'/src/assets/images/users/user-dummy-img.jpg'" alt="Profile" class="rounded-circle me-3" width="40" height="40">
                     <span class=" text-center">{{user.email}}</span>
                    
                     <button type="button" class="btn btn-soft-primary btn-sm" 
@@ -536,7 +650,7 @@ export default{
                     </div>
                 </div>
 
-                <form>
+                <form data-bs-toggle="modal" data-bs-target="#addContact-exampleModal2">
                     <div class="input-group mb-4">
                         <input type="text" class="form-control bg-light border-0 pe-0" id="searchContact" onkeyup="searchContacts()" placeholder="Search Contacts.." aria-label="Search Contacts..." 
                         aria-describedby="button-searchcontactsaddon" autocomplete="off">
@@ -555,7 +669,7 @@ export default{
                     role="button"
                     @click="chatUser=user"
                     >
-                    <img src="@/assets/images/users/user-dummy-img.jpg" alt="Profile" class="rounded-circle me-3" width="40" height="40">
+                    <img :src="user.img!=null?user.img:'/src/assets/images/users/user-dummy-img.jpg'" alt="Profile" class="rounded-circle me-3" width="40" height="40">
                     <span class=" text-center">{{user.email}}</span>
                     <div class="flex-shrink-0 ms-3">
                                 <div class="dropdown">
@@ -578,26 +692,71 @@ export default{
     </div>
     <!-- End contacts tab-pane -->
 
-    <!-- Start calls tab-pane -->
+    <!-- Start Poste/calls tab-pane -->
     <div class="tab-pane" id="pills-calls" role="tabpanel" aria-labelledby="pills-calls-tab">
         <!-- Start Contact content -->
         <div>
             <div class="px-4 pt-4">
                 <div class="d-flex align-items-start">
                     <div class="flex-grow-1">
-                        <h4 class="mb-3">Calls</h4>
+                        <h4 class="mb-4">POSTES</h4>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <div data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="bottom" title="Add Poste">
+
+                            <!-- Button trigger modal -->
+                            <button type="button" class="btn btn-soft-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addPost">
+                                <i class="bx bx-plus"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
+
+                
             </div>
             <!-- end p-4 -->
 
-            <!-- Start contact lists -->
-            <div class="chat-message-list chat-call-list" data-simplebar>
-                <ul class="list-unstyled chat-list" id="callList">      
-  
-                </ul>
+            <!-- Start Poste lists -->
+            <div class="chat-message-list chat-group-list">
+
+                <h2>Mes Postes</h2>
+                
+                <div 
+                    v-for="post in ownPostList" 
+                    class="d-flex align-items-center mb-3 px-4 mt-4 font-size-11 text-muted bg-light rounded"
+                    
+                    @click="showPost(post)"
+                    >
+                    <img :src=post.contact.img alt="Profile" class="rounded-circle me-3" width="40" height="40" data-bs-toggle="modal" data-bs-target="#showPost">
+                    <span class=" text-center">{{post.timestamp}}</span>
+                    <div class="flex-shrink-0 ms-3">
+                                <div class="dropdown">
+                                    <a class="dropdown-toggle font-size-16 text-muted px-1" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <i class="bx bx-dots-horizontal-rounded"></i>
+                                    </a>
+                                    <div class="dropdown-menu dropdown-menu-end">
+         
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item d-flex align-items-center justify-content-between" @click="deletePost(post.id)">Delete <i class="bx bx-trash ms-2 text-muted"></i></a>
+                                    </div>
+                                </div>
+                    </div>
+                    
+                </div>
+                <h2>Poste des contactes </h2>
+                <div 
+                    v-for="post in postList" 
+                    class="d-flex align-items-center mb-3 px-4 mt-4 font-size-11 text-muted bg-light rounded"
+                    
+                    @click="showPost(post)"
+                    >
+                    <img :src=post.contact.img alt="Profile" class="rounded-circle me-3" width="40" height="40" data-bs-toggle="modal" data-bs-target="#showPost">                  
+                    <span class=" text-center">{{post.timestamp}}</span>
+                    
+                    
+                </div>
             </div>
-            <!-- end contact lists -->
+            <!-- end Poste lists -->
         </div>
         <!-- Start Contact content -->
     </div>
@@ -991,7 +1150,7 @@ export default{
     
                             <div class="d-flex w-100 align-items-center">
                                 <div class="flex-grow-1">
-                                    <h5 class="text-white mb-0">Settings</h5>
+                                    <h5 class="text-white mb-0">Paramettre</h5>
                                 </div>
                                 <div class="flex-shrink-0">
                                     <div class="avatar-xs p-0 rounded-circle profile-photo-edit" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="bottom" title="Change Background">
@@ -1011,7 +1170,7 @@ export default{
 
             <div class="text-center p-3 p-lg-4 border-bottom pt-2 pt-lg-2 mt-n5 position-relative">
                 <div class="mb-3 profile-user">
-                    <img src="@/assets/images/users/avatar-1.jpg" class="rounded-circle avatar-lg img-thumbnail user-profile-image" alt="user-profile-image">
+                    <img :src=imageSrc class="rounded-circle avatar-lg img-thumbnail user-profile-image" alt="user-profile-image">
                     <div class="avatar-xs p-0 rounded-circle profile-photo-edit">
                         <input id="profile-img-file-input" type="file" class="profile-img-file-input" >
                         <label for="profile-img-file-input" class="profile-photo-edit avatar-xs">
@@ -1046,7 +1205,7 @@ export default{
                     <div class="accordion-item">
                         <div class="accordion-header" id="headerpersonalinfo">
                             <button class="accordion-button font-size-14 fw-medium" type="button" data-bs-toggle="collapse" data-bs-target="#personalinfo" aria-expanded="true" aria-controls="personalinfo">
-                                <i class="bx bxs-user text-muted me-3"></i> Personal Info
+                                <i class="bx bxs-user text-muted me-3"></i>Info Personelle
                             </button>
                         </div>
                         <div id="personalinfo" class="accordion-collapse collapse show" aria-labelledby="headerpersonalinfo" data-bs-parent="#settingprofile">
@@ -1056,19 +1215,16 @@ export default{
                                 </div>
 
                                 <div>
-                                    <p class="text-muted mb-1">Name</p>
-                                    <h5 class="font-size-14">Adam Zampa</h5>
+                                    <p class="text-muted mb-1">UserName</p>
+                                    <h5 class="font-size-14">{{curentUser.username}}</h5>
                                 </div>
 
                                 <div class="mt-4">
                                     <p class="text-muted mb-1">Email</p>
-                                    <h5 class="font-size-14">adc@123.com</h5>
+                                    <h5 class="font-size-14">{{curentUser.email}}</h5>
                                 </div>
 
-                                <div class="mt-4">
-                                    <p class="text-muted mb-1">Location</p>
-                                    <h5 class="font-size-14 mb-0">California, USA</h5>
-                                </div>
+                                
                             </div>
                         </div>
                     </div>
@@ -1379,7 +1535,7 @@ export default{
                     role="button"
                     @click=""
                     >
-                    <img src="@/assets/images/small/img-4.jpg" alt="Profile" class="rounded-circle me-3" width="40" height="40">
+                    <img :src="findUser.img!=null?findUser.img:'/src/assets/images/users/user-dummy-img.jpg'" alt="Profile" class="rounded-circle me-3" width="40" height="40">
                     <span class=" text-center" style="font-weight: bold; size:20px;">{{findUser.email}} / </span>
                     <span class=" text-center"style="font-weight: bold; size:20px;" >{{findUser.username}}  </span>
                     
@@ -1397,7 +1553,62 @@ export default{
 <!-- End Add contact Modal -->
 
 
+<!--Post modal -->
 
+<div class="modal fade" id="addPost" tabindex="-1" role="dialog" aria-labelledby="addPost" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content modal-header-colored shadow-lg border-0">
+            <div class="modal-header">
+                <h5 class="modal-title text-white font-size-16" id="addPost">Ajouter un Post</h5>
+                <button type="button"  class="btn-close btn-close-white" data-bs-dismiss="modal"  aria-label="Close">
+                </button>
+            </div>
+          
+            <div class="modal-body p-4">
+               
+                        
+              <!--content here-->
+              <QuillEditor v-model:content="editorData" theme="snow" toolbar="full" contentType="html" />
+              
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-link" data-bs-dismiss="modal">Close</button>
+                <button  @click="sendPostContent()" class="btn btn-primary">add</button>
+            </div>
+          
+        </div>
+    </div>
+</div>
+<!--End post Modal-->
+
+
+<!-- show post modal -->
+<div class="modal fade" id="showPost" tabindex="-1" role="dialog" aria-labelledby="showPost" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content modal-header-colored shadow-lg border-0">
+            <div class="modal-header">
+                <h5 class="modal-title text-white font-size-16" id="addPost">Poste de : {{showModalTitle }}</h5>
+                <button type="button"  class="btn-close btn-close-white" data-bs-dismiss="modal"  aria-label="Close">
+                </button>
+            </div>
+          
+            <div class="modal-body p-4">
+               
+              
+                <div v-html="showContentdata"></div>
+
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-link" data-bs-dismiss="modal">Close</button>
+               
+            </div>
+          
+        </div>
+    </div>
+</div>
+<!-- end show  -->
 
 
 </template>

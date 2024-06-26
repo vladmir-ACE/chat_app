@@ -49,6 +49,8 @@ def invalid_token_response(callback):
 ## import of models
 from models.users import User
 from models.messages import Message
+from models.contactes import Contacte
+from models.poste import Poste
 
 ## import of blue print in routes
 from routes.auth_route import auth_bp
